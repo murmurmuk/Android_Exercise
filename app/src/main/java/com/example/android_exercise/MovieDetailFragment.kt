@@ -2,7 +2,6 @@ package com.example.android_exercise
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -43,7 +42,6 @@ class MovieDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("murmur", "open ${args.movieId}")
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.getMovieInfo(args.movieId)
@@ -72,7 +70,6 @@ class MovieDetailFragment : Fragment() {
         }
     }
     private fun setMovie(movie: MovieEntry) {
-        Log.d("murmur", "$movie")
         _binding?.apply {
             progress.isVisible = false
             val link = if (movie.poster_path.isNullOrEmpty()) {

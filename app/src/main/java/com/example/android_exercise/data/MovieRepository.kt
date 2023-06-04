@@ -1,6 +1,5 @@
 package com.example.android_exercise.data
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -53,7 +52,6 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
         return dataStore.data.map {
             it[key] ?: false
         }.flatMapConcat {
-            Log.d("murmur", "get $it")
             if (!it) {
                 getAllFavorite().flatMapConcat {
                     getPagingSource()
@@ -79,7 +77,6 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
             }
             initPage += 1
         }
-        Log.d("murmur", "finish save favorite")
         val key = booleanPreferencesKey(FAVORITE_JOB_TAG)
         dataStore.edit {preference  ->
             preference[key] = true
@@ -89,7 +86,6 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
 
     fun updateFavorite(item: MovieEntry) = flow {
         val change = !item.isFavorite
-        Log.d("murmur", "try change ${item.title}")
         try {
             val response = service.changeFavorite(
                 ChangeFavoritePayload(
@@ -97,10 +93,8 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
                     favorite = change
                 )
             )
-            Log.d("murmur", "$response")
 
             if (response.isSuccessful) {
-                Log.d("murmur", "change ${response.body()}")
                 if (change) {
                     database.favoriteMovieDao().insert(FavoriteMovie(item.id))
                 } else {
@@ -117,11 +111,9 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
                 database.movieDao().update(changeItem)
                 emit(GetResult.Success(changeItem))
             } else {
-                Log.d("murmur", "change fail ${response.errorBody()}")
                 emit(GetResult.Error(Throwable(response.errorBody().toString())))
             }
         } catch (e: Exception) {
-            Log.d("murmur", "change fail $e")
             emit(GetResult.Error(e))
         }
     }
@@ -159,7 +151,6 @@ class MovieRemoteMediator(
                     remoteKey.nextKey
                 }
             }
-            Log.d("murmur", "load with $loadKey")
             val response = movieApi.getPopularMovies(page = loadKey)
             val movieResponse = response.body()
             if (movieResponse == null) {
@@ -181,7 +172,6 @@ class MovieRemoteMediator(
                     }
                     database.remoteKeyDao().insertOrReplace(remoteKey)
                 }
-                Log.d("murmur", "load finish ${movieResponse.page} ${movieResponse.total_pages}")
                 MediatorResult.Success(endOfPaginationReached = movieResponse.page == movieResponse.total_pages)
             }
         } catch (e: IOException) {
