@@ -13,6 +13,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
+import com.example.android_exercise.data.api.ChangeFavoritePayload
 import com.example.android_exercise.data.api.MovieApi
 import com.example.android_exercise.data.db.CacheDb
 import com.example.android_exercise.data.db.entity.FavoriteMovie
@@ -85,21 +86,38 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
         emit(GetResult.Success(true))
     }
 
-    fun updateFavorite(item: MovieEntry) = flow<GetResult<MovieEntry>> {
+    fun updateFavorite(item: MovieEntry) = flow {
         val change = !item.isFavorite
         Log.d("murmur", "try change ${item.title}")
-        val changeItem = MovieEntry(
-            item.id,
-            item.title,
-            item.poster_path,
-            item.overview,
-            change,
-            item.page
-        )
-        database.withTransaction {
+        val response = service.changeFavorite(
+                ChangeFavoritePayload(
+                    media_id = item.id,
+                    favorite = change
+                )
+                )
+        Log.d("murmur", "$response")
+
+        if (response.isSuccessful) {
+            Log.d("murmur", "change ${response.body()}")
+            if (change) {
+                database.favoriteMovieDao().insert(FavoriteMovie(item.id))
+            } else {
+                database.favoriteMovieDao().delete(FavoriteMovie(item.id))
+            }
+            val changeItem = MovieEntry(
+                item.id,
+                item.title,
+                item.poster_path,
+                item.overview,
+                change,
+                item.page
+            )
             database.movieDao().update(changeItem)
+            emit(GetResult.Success(changeItem))
+        } else {
+            Log.d("murmur", "change fail ${response.errorBody()}")
+            emit(GetResult.Error(Throwable(response.errorBody().toString())))
         }
-        emit(GetResult.Success(changeItem))
     }
 }
 

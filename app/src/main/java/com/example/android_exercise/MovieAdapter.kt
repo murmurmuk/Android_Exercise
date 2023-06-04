@@ -1,6 +1,7 @@
 package com.example.android_exercise
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -23,7 +24,7 @@ class MovieAdapter(diffCallback: DiffUtil.ItemCallback<MovieEntry>,
     PagingDataAdapter<MovieEntry, MovieViewHolder>(diffCallback) {
 
     interface ClickHelper {
-        fun click(item: MovieEntry, position: Int)
+        fun clickFavorite(item: MovieEntry, position: Int)
     }
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -47,16 +48,18 @@ class MovieViewHolder(private val binding: MovieItemBinding,
     fun bind(item: MovieEntry?) {
         item?.apply {
             binding.title.text = title
+            binding.progress.visibility = View.GONE
+            binding.favorite.visibility = View.VISIBLE
             if (isFavorite) {
                 binding.favorite.setImageResource(R.drawable.baseline_favorite_24)
             } else {
                 binding.favorite.setImageResource(R.drawable.baseline_favorite_border_24)
             }
             binding.favorite.setOnClickListener {
-                clickHelper.click(item, bindingAdapterPosition)
+                binding.favorite.visibility = View.GONE
+                binding.progress.visibility = View.VISIBLE
+                clickHelper.clickFavorite(item, bindingAdapterPosition)
             }
         }
-
-
     }
 }

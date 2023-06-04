@@ -87,7 +87,7 @@ class PopularListFragment : Fragment(), MovieAdapter.ClickHelper {
         }
     }
 
-    override fun click(item: MovieEntry, position: Int) {
+    override fun clickFavorite(item: MovieEntry, position: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.updateFavorite(item)
