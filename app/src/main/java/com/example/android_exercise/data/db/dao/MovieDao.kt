@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.android_exercise.data.db.entity.MovieEntry
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MovieDao {
@@ -22,6 +23,6 @@ interface MovieDao {
     @Update
     suspend fun update(movie: MovieEntry)
 
-    @Query("SELECT (SELECT COUNT(*) FROM movie_table) == 0")
-    fun isEmpty(): Boolean
+    @Query("SELECT * FROM movie_table WHERE id = :query")
+    fun movieByQuery(query: Int): Flow<MovieEntry>
 }

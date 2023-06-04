@@ -119,6 +119,9 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
             emit(GetResult.Error(Throwable(response.errorBody().toString())))
         }
     }
+
+    suspend fun getMovieInfo(id: Int) = database.movieDao().movieByQuery(id)
+
 }
 
 @OptIn(ExperimentalPagingApi::class)

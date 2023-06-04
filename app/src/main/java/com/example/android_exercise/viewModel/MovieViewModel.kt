@@ -48,6 +48,9 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
         .catch {
             emit(GetResult.Error(it))
         }
+
+    suspend fun getMovieInfo(id: Int) = repository.getMovieInfo(id)
+        .flowOn(Dispatchers.IO)
 }
 
 sealed class GetResult<out T> {
