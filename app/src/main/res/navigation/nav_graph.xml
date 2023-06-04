@@ -8,6 +8,6 @@
     <fragment
         android:id="@+id/popularListFragment"
         android:name="com.example.android_exercise.PopularListFragment"
-        android:label="fragment_popular_list"
+        android:label="@string/popular_list"
         tools:layout="@layout/fragment_popular_list" />
 </navigation>
