@@ -6,32 +6,54 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingData
+import com.example.android_exercise.data.MovieRepository
 import com.example.android_exercise.data.db.entity.MovieEntry
 import com.example.android_exercise.databinding.FragmentPopularListBinding
 import com.example.android_exercise.viewModel.GetResult
 import com.example.android_exercise.viewModel.MovieViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PopularListFragment : Fragment(), MovieAdapter.ClickHelper {
 
     private val viewModel by activityViewModels<MovieViewModel>()
     private lateinit var binding: FragmentPopularListBinding
     private lateinit var adapter: MovieAdapter
+
+    @Inject lateinit var dataStore: DataStore<Preferences>
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentPopularListBinding.inflate(inflater, container, false)
-        binding.swipe.setOnRefreshListener {
-            viewModel.query()
-        }
         adapter = MovieAdapter(MovieComparator, this)
+        binding.swipe.setOnRefreshListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val key = booleanPreferencesKey(MovieRepository.FAVORITE_JOB_TAG)
+                dataStore.data.map {
+                    it[key] ?: false
+                }.collect {
+                    if (it) {
+                        binding.swipe.isRefreshing = false
+                        adapter.refresh()
+                    } else {
+                        viewModel.query()
+                    }
+                }
+            }
+        }
         binding.listView.adapter = adapter
         return binding.root
     }
@@ -63,11 +85,6 @@ class PopularListFragment : Fragment(), MovieAdapter.ClickHelper {
                 }
             }
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = PopularListFragment()
     }
 
     override fun click(item: MovieEntry, position: Int) {

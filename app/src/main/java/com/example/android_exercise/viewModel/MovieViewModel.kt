@@ -1,5 +1,6 @@
 package com.example.android_exercise.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -21,9 +22,19 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
     fun query() {
         stateFlow.value = GetResult.Loading()
         viewModelScope.launch {
-            repository.getPagingSource()
+            Log.d("murmur", "query")
+            repository.getPagingSourceWithFavorite()
+                .flowOn(Dispatchers.IO)
+                .catch {
+                    Log.d("murmur", "error $it")
+                    stateFlow.value = GetResult.Error(it)
+                }
                 .collect {
-                    stateFlow.value = GetResult.Success(it.result)
+                    if (it is GetResult.Success) {
+                        stateFlow.value = GetResult.Success(it.result)
+                    } else {
+                        stateFlow.value = GetResult.Error(Throwable("has error"))
+                    }
                 }
         }
     }
