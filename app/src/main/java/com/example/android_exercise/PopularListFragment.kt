@@ -18,7 +18,7 @@ import com.example.android_exercise.viewModel.MovieViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class PopularListFragment : Fragment() {
+class PopularListFragment : Fragment(), MovieAdapter.ClickHelper {
 
     private val viewModel by activityViewModels<MovieViewModel>()
     private lateinit var binding: FragmentPopularListBinding
@@ -31,7 +31,7 @@ class PopularListFragment : Fragment() {
         binding.swipe.setOnRefreshListener {
             viewModel.query()
         }
-        adapter = MovieAdapter(MovieComparator)
+        adapter = MovieAdapter(MovieComparator, this)
         binding.listView.adapter = adapter
         return binding.root
     }
@@ -68,5 +68,18 @@ class PopularListFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = PopularListFragment()
+    }
+
+    override fun click(item: MovieEntry, position: Int) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.updateFavorite(item)
+                    .collect {
+                        if (it is GetResult.Error) {
+                            adapter.notifyItemChanged(position)
+                        }
+                    }
+            }
+        }
     }
 }

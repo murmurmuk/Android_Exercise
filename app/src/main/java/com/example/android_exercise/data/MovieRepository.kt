@@ -30,6 +30,23 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
         }
         emit(GetResult.Success(pager.flow))
     }
+
+    fun updateFavorite(item: MovieEntry) = flow<GetResult<MovieEntry>> {
+        val change = !item.isFavorite
+        Log.d("murmur", "try change ${item.title}")
+        val changeItem = MovieEntry(
+            item.id,
+            item.title,
+            item.poster_path,
+            item.overview,
+            change,
+            item.page
+        )
+        database.withTransaction {
+            database.movieDao().update(changeItem)
+        }
+        emit(GetResult.Success(changeItem))
+    }
 }
 
 @OptIn(ExperimentalPagingApi::class)

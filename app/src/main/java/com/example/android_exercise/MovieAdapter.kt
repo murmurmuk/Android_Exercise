@@ -18,14 +18,19 @@ object MovieComparator : DiffUtil.ItemCallback<MovieEntry>() {
         return oldItem == newItem
     }
 }
-class MovieAdapter(diffCallback: DiffUtil.ItemCallback<MovieEntry>) :
+class MovieAdapter(diffCallback: DiffUtil.ItemCallback<MovieEntry>,
+                   private val helper: ClickHelper) :
     PagingDataAdapter<MovieEntry, MovieViewHolder>(diffCallback) {
+
+    interface ClickHelper {
+        fun click(item: MovieEntry, position: Int)
+    }
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): MovieViewHolder {
         val binding = MovieItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MovieViewHolder(binding)
+        return MovieViewHolder(binding, helper)
     }
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
@@ -36,12 +41,22 @@ class MovieAdapter(diffCallback: DiffUtil.ItemCallback<MovieEntry>) :
     }
 }
 
-class MovieViewHolder(private val binding: MovieItemBinding)
+class MovieViewHolder(private val binding: MovieItemBinding,
+                      private val clickHelper: MovieAdapter.ClickHelper)
     : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: MovieEntry?) {
         item?.apply {
             binding.title.text = title
+            if (isFavorite) {
+                binding.favorite.setImageResource(R.drawable.baseline_favorite_24)
+            } else {
+                binding.favorite.setImageResource(R.drawable.baseline_favorite_border_24)
+            }
+            binding.favorite.setOnClickListener {
+                clickHelper.click(item, bindingAdapterPosition)
+            }
         }
+
 
     }
 }
