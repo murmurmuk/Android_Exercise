@@ -16,6 +16,16 @@ interface MovieApi {
         @Query("language") language: String = "en-US",
         @Query("page") page: Int
     ): Response<MovieResponse>
+
+
+    @Headers(
+        "Authorization: Bearer ${BuildConfig.TOKEN}",
+        "accept: application/json")
+    @GET("account/${BuildConfig.ACCOUNT_ID}/favorite/movies")
+    suspend fun getUserFavorite(
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int,
+        @Query("sort_by") sort: String = "created_at.asc") : Response<MovieResponse>
 }
 
 data class MovieResponse(val page: Int,

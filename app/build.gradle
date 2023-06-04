@@ -23,11 +23,15 @@ android {
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
         def token = properties.getProperty('movie.token')
+        def accountId = properties.getProperty('movie.account.id')
+
         debug {
             buildConfigField "String", "TOKEN", token
+            buildConfigField "int", "ACCOUNT_ID", accountId
         }
         release {
             buildConfigField "String", "TOKEN", token
+            buildConfigField "int", "ACCOUNT_ID", accountId
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
