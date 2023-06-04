@@ -2,4 +2,5 @@
     <string name="app_name">Android_Exercise</string>
     <string name="error_text">Error</string>
     <string name="change_favorite">Change Favorite</string>
+    <string name="cover">Cover Image</string>
 </resources>
