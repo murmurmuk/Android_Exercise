@@ -9,5 +9,19 @@
         android:id="@+id/popularListFragment"
         android:name="com.example.android_exercise.PopularListFragment"
         android:label="@string/popular_list"
-        tools:layout="@layout/fragment_popular_list" />
+        tools:layout="@layout/fragment_popular_list" >
+        <action
+            android:id="@+id/action_popularListFragment_to_movieDetailFragment"
+            app:destination="@id/movieDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/movieDetailFragment"
+        android:name="com.example.android_exercise.MovieDetailFragment"
+        android:label="@string/detail"
+        tools:layout="@layout/fragment_movie_detail" >
+        <argument
+            android:name="movie_id"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
 </navigation>

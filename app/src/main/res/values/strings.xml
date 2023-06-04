@@ -4,4 +4,5 @@
     <string name="change_favorite">Change Favorite</string>
     <string name="cover">Cover Image</string>
     <string name="popular_list">Popular Movies</string>
+    <string name="detail">Detail</string>
 </resources>

@@ -27,6 +27,7 @@ class MovieAdapter(diffCallback: DiffUtil.ItemCallback<MovieEntry>,
 
     interface ClickHelper {
         fun clickFavorite(item: MovieEntry, position: Int)
+        fun clickItem(item: MovieEntry)
     }
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -65,6 +66,9 @@ class MovieViewHolder(private val binding: MovieItemBinding,
                 binding.favorite.visibility = View.GONE
                 binding.progress.visibility = View.VISIBLE
                 clickHelper.clickFavorite(item, bindingAdapterPosition)
+            }
+            binding.root.setOnClickListener {
+                clickHelper.clickItem(item)
             }
             val link = if (item.poster_path.isNullOrEmpty()) {
                 null
