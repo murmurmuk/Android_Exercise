@@ -10,6 +10,7 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.android_exercise.data.api.MovieApi
 import com.example.android_exercise.data.db.CacheDb
+import com.example.android_exercise.data.db.entity.FavoriteMovie
 import com.example.android_exercise.data.db.entity.MovieEntry
 import com.example.android_exercise.data.db.entity.PopularRemoteKey
 import com.example.android_exercise.viewModel.GetResult
@@ -29,6 +30,24 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
             movieDao.pagingSource()
         }
         emit(GetResult.Success(pager.flow))
+    }
+    fun getAllFavorite() = flow<GetResult<Boolean>> {
+        var initPage = 1
+        while (true) {
+            val response = service.getUserFavorite(page = initPage).body()!!
+            database.withTransaction {
+                val list = response.results.map {
+                    FavoriteMovie(it.id)
+                }
+                database.favoriteMovieDao().insertAll(list)
+            }
+            if (response.page >= response.total_pages) {
+                break
+            }
+            initPage += 1
+        }
+        Log.d("murmur", "finish save favorite")
+        emit(GetResult.Success(true))
     }
 
     fun updateFavorite(item: MovieEntry) = flow<GetResult<MovieEntry>> {
