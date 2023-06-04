@@ -10,15 +10,19 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.PagingData
+import com.example.android_exercise.data.db.entity.MovieEntry
 import com.example.android_exercise.databinding.FragmentPopularListBinding
+import com.example.android_exercise.viewModel.GetResult
 import com.example.android_exercise.viewModel.MovieViewModel
-import com.example.android_exercise.viewModel.Result
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class PopularListFragment : Fragment() {
 
     private val viewModel by activityViewModels<MovieViewModel>()
     private lateinit var binding: FragmentPopularListBinding
+    private lateinit var adapter: MovieAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -27,6 +31,8 @@ class PopularListFragment : Fragment() {
         binding.swipe.setOnRefreshListener {
             viewModel.query()
         }
+        adapter = MovieAdapter(MovieComparator)
+        binding.listView.adapter = adapter
         return binding.root
     }
 
@@ -37,18 +43,21 @@ class PopularListFragment : Fragment() {
                 viewModel.stateFlow.collect {
                     binding.swipe.isRefreshing = false
                     when(it) {
-                        is Result.Error -> {
+                        is GetResult.Error -> {
                             binding.errorText.isVisible = true
                             binding.progress.isVisible = false
                         }
-                        is Result.Loading -> {
+                        is GetResult.Loading -> {
                             binding.errorText.isVisible = false
                             binding.progress.isVisible = true
                         }
-                        is Result.Success -> {
+                        is GetResult.Success -> {
                             binding.errorText.isVisible = false
                             binding.progress.isVisible = false
-                            binding.listView.adapter = MovieAdapter(it.result)
+                            it.result.collectLatest {
+                                    value: PagingData<MovieEntry> ->
+                                adapter.submitData(value)
+                            }
                         }
                     }
                 }
