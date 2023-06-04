@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +17,7 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.android_exercise.data.db.entity.MovieEntry
 import com.example.android_exercise.databinding.FragmentMovieDetailBinding
+import com.example.android_exercise.viewModel.GetResult
 import com.example.android_exercise.viewModel.MovieViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -55,9 +58,23 @@ class MovieDetailFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun changeFavorite(movie: MovieEntry) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.updateFavorite(movie)
+                .collect {
+                    if (it is GetResult.Error) {
+                        setMovie(movie)
+                        Toast.makeText(requireActivity(), R.string.change_favorite_error,
+                            Toast.LENGTH_LONG).show()
+                    }
+                }
+        }
+    }
     private fun setMovie(movie: MovieEntry) {
         Log.d("murmur", "$movie")
         _binding?.apply {
+            progress.isVisible = false
             val link = if (movie.poster_path.isNullOrEmpty()) {
                 null
             } else {
@@ -68,6 +85,18 @@ class MovieDetailFragment : Fragment() {
                 .into(coverImage)
 
             overviewText.text = movie.overview
+
+            favorite.isVisible = true
+            if (movie.isFavorite) {
+                favorite.setImageResource(R.drawable.baseline_favorite_24)
+            } else {
+                favorite.setImageResource(R.drawable.baseline_favorite_border_24)
+            }
+            favorite.setOnClickListener {
+                favorite.isVisible = false
+                progress.isVisible = true
+                changeFavorite(movie)
+            }
         }
     }
 }

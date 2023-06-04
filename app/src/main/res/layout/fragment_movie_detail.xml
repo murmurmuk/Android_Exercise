@@ -28,10 +28,38 @@
             android:layout_marginTop="24dp"
             android:layout_marginHorizontal="16dp"
             />
+        <FrameLayout
+            android:id="@+id/block"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@color/white"
+            android:contentDescription="@string/change_favorite"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/cover_image"
+            />
 
+        <ImageView
+            android:id="@+id/favorite"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:padding="12dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:contentDescription="@string/change_favorite"
+            app:layout_constraintBottom_toBottomOf="@id/block"
+            app:layout_constraintStart_toStartOf="@id/block"
+            app:layout_constraintEnd_toEndOf="@id/block"
+            app:layout_constraintTop_toTopOf="@id/block"
+            />
 
-
-
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/block"
+            app:layout_constraintStart_toStartOf="@id/block"
+            app:layout_constraintEnd_toEndOf="@id/block"
+            app:layout_constraintTop_toTopOf="@id/block"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

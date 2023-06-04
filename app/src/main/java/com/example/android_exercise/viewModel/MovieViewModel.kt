@@ -45,9 +45,7 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
 
     fun updateFavorite(item: MovieEntry) = repository.updateFavorite(item)
         .flowOn(Dispatchers.IO)
-        .catch {
-            emit(GetResult.Error(it))
-        }
+
 
     suspend fun getMovieInfo(id: Int) = repository.getMovieInfo(id)
         .flowOn(Dispatchers.IO)

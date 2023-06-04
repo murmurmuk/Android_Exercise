@@ -5,4 +5,5 @@
     <string name="cover">Cover Image</string>
     <string name="popular_list">Popular Movies</string>
     <string name="detail">Detail</string>
+    <string name="change_favorite_error">Change Favorite Error</string>
 </resources>

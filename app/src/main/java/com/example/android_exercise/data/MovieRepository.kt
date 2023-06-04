@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
+import java.lang.Exception
 import javax.inject.Inject
 
 
@@ -89,38 +90,43 @@ class MovieRepository @Inject constructor(private val service: MovieApi,
     fun updateFavorite(item: MovieEntry) = flow {
         val change = !item.isFavorite
         Log.d("murmur", "try change ${item.title}")
-        val response = service.changeFavorite(
+        try {
+            val response = service.changeFavorite(
                 ChangeFavoritePayload(
                     media_id = item.id,
                     favorite = change
                 )
-                )
-        Log.d("murmur", "$response")
-
-        if (response.isSuccessful) {
-            Log.d("murmur", "change ${response.body()}")
-            if (change) {
-                database.favoriteMovieDao().insert(FavoriteMovie(item.id))
-            } else {
-                database.favoriteMovieDao().delete(FavoriteMovie(item.id))
-            }
-            val changeItem = MovieEntry(
-                item.id,
-                item.title,
-                item.poster_path,
-                item.overview,
-                change,
-                item.page
             )
-            database.movieDao().update(changeItem)
-            emit(GetResult.Success(changeItem))
-        } else {
-            Log.d("murmur", "change fail ${response.errorBody()}")
-            emit(GetResult.Error(Throwable(response.errorBody().toString())))
+            Log.d("murmur", "$response")
+
+            if (response.isSuccessful) {
+                Log.d("murmur", "change ${response.body()}")
+                if (change) {
+                    database.favoriteMovieDao().insert(FavoriteMovie(item.id))
+                } else {
+                    database.favoriteMovieDao().delete(FavoriteMovie(item.id))
+                }
+                val changeItem = MovieEntry(
+                    item.id,
+                    item.title,
+                    item.poster_path,
+                    item.overview,
+                    change,
+                    item.page
+                )
+                database.movieDao().update(changeItem)
+                emit(GetResult.Success(changeItem))
+            } else {
+                Log.d("murmur", "change fail ${response.errorBody()}")
+                emit(GetResult.Error(Throwable(response.errorBody().toString())))
+            }
+        } catch (e: Exception) {
+            Log.d("murmur", "change fail $e")
+            emit(GetResult.Error(e))
         }
     }
 
-    suspend fun getMovieInfo(id: Int) = database.movieDao().movieByQuery(id)
+    fun getMovieInfo(id: Int) = database.movieDao().movieByQuery(id)
 
 }
 
