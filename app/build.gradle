@@ -23,8 +23,8 @@ android {
     buildTypes {
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
-        def token = properties.getProperty('movie.token')
-        def accountId = properties.getProperty('movie.account.id')
+        def token = properties.getProperty('apiAccessToken')
+        def accountId = properties.getProperty('accountId')
 
         debug {
             buildConfigField "String", "TOKEN", token
