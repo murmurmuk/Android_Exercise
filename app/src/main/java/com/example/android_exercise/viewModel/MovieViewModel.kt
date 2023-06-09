@@ -7,6 +7,7 @@ import com.example.android_exercise.data.MovieRepository
 import com.example.android_exercise.data.db.entity.MovieEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
@@ -17,10 +18,11 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieViewModel @Inject constructor(private val repository: MovieRepository): ViewModel() {
     val stateFlow = MutableStateFlow<GetResult<Flow<PagingData<MovieEntry>>>>(GetResult.Loading())
-
+    private var queryJob: Job? = null
     fun query() {
+        queryJob?.cancel()
         stateFlow.value = GetResult.Loading()
-        viewModelScope.launch {
+        queryJob = viewModelScope.launch {
             repository.getPagingSourceWithFavorite()
                 .flowOn(Dispatchers.IO)
                 .catch {

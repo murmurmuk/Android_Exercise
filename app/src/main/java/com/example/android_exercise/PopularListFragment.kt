@@ -9,21 +9,18 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
-import com.example.android_exercise.data.MovieRepository
 import com.example.android_exercise.data.db.entity.MovieEntry
 import com.example.android_exercise.databinding.FragmentPopularListBinding
 import com.example.android_exercise.viewModel.GetResult
 import com.example.android_exercise.viewModel.MovieViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,16 +40,12 @@ class PopularListFragment : Fragment(), MovieAdapter.ClickHelper {
         adapter = MovieAdapter(MovieComparator, this)
         binding.swipe.setOnRefreshListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                val key = booleanPreferencesKey(MovieRepository.FAVORITE_JOB_TAG)
-                dataStore.data.map {
-                    it[key] ?: false
-                }.collect {
-                    if (it) {
-                        binding.swipe.isRefreshing = false
-                        adapter.refresh()
-                    } else {
-                        viewModel.query()
-                    }
+                val value = viewModel.stateFlow.value
+                if (value is GetResult.Success) {
+                    binding.swipe.isRefreshing = false
+                    adapter.refresh()
+                } else {
+                    viewModel.query()
                 }
             }
         }
