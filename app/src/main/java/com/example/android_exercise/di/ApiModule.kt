@@ -8,15 +8,18 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+    @Singleton
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient()
     }
 
+    @Singleton
     @Provides
     fun provideMovieService(client: OkHttpClient): MovieApi {
         val retrofit = Retrofit.Builder()
